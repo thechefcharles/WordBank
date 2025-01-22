@@ -30,6 +30,7 @@
         v-for="key in row"
         :key="key"
         @click="() => selectLetter(key)"
+        @touchstart="() => selectLetter(key)"
         :class="getKeyClass(key)"
         :disabled="store.guessedLetters.includes(key)"
       >
@@ -86,7 +87,6 @@ export default {
     window.removeEventListener('keydown', this.handleKeyDown);
   },
   methods: {
-    // Handle physical keyboard input
     handleKeyDown(event) {
       const key = event.key.toLowerCase();
       if (key === 'enter') {
@@ -94,14 +94,12 @@ export default {
       } else if (key === 'backspace' || key === 'delete') {
         this.deleteLetter();
       } else if (key === ' ') {
-        event.preventDefault(); // Prevent default spacebar scrolling
+        event.preventDefault();
         this.handleSpacebar();
       } else if (/^[a-z]$/.test(key)) {
         this.selectLetter(key);
       }
     },
-
-    // Ensure spacebar only toggles Guess Mode
     handleSpacebar() {
       if (!this.store.isGuessMode && this.store.guesses === 0) {
         alert('You need at least one guess remaining to enter Guess Mode!');
@@ -109,7 +107,6 @@ export default {
       }
       this.toggleGuessMode();
     },
-
     getKeyClass(key) {
       return {
         correct: this.store.guessedLetters.includes(key) && this.store.currentPhrase.includes(key),
@@ -117,71 +114,64 @@ export default {
         selected: this.store.currentTypedLetter === key,
       };
     },
-
     getLetterCost(letter) {
       return this.store.letterCost(letter);
     },
-
     selectLetter(key) {
-      if (this.store.guessedLetters.includes(key)) return; // Ignore if already guessed
+      if (this.store.guessedLetters.includes(key)) return;
       if (this.store.currentTypedLetter === key) {
-        this.store.currentTypedLetter = ''; // Deselect letter
+        this.store.currentTypedLetter = '';
         return;
       }
       if (this.store.isGuessMode) {
-        this.store.fillActiveBox(key); // Fill active box in Guess Mode
+        this.store.fillActiveBox(key);
       } else {
-        this.store.currentTypedLetter = key; // Select letter
+        this.store.currentTypedLetter = key;
       }
     },
-
     confirmAction(event) {
       if (this.store.pendingPurchase) {
-        this.handlePurchase(event); // Handle the purchase logic
+        this.handlePurchase(event);
       } else if (this.store.isGuessMode) {
         if (this.store.currentInput.includes('_')) {
           alert('Please fill all spaces before submitting your guess!');
           return;
         }
-        this.store.submitGuess(); // Submit Guess Mode input
+        this.store.submitGuess();
       } else if (this.store.currentTypedLetter) {
-        this.store.guessLetter(this.store.currentTypedLetter); // Confirm normal letter
-        this.store.currentTypedLetter = ''; // Clear selected letter
+        this.store.guessLetter(this.store.currentTypedLetter);
+        this.store.currentTypedLetter = '';
       }
     },
-
     handlePurchase(event) {
       if (this.store.pendingPurchase === 'guess') {
-        this.store.confirmPendingPurchase(); // Confirm guess purchase
+        this.store.confirmPendingPurchase();
       } else if (this.store.pendingPurchase === 'hint') {
-        this.store.confirmPendingPurchase(); // Confirm hint purchase
+        this.store.confirmPendingPurchase();
       }
-      this.store.pendingPurchase = null; // Reset the pending purchase
+      this.store.pendingPurchase = null;
 
       if (event) {
-        event.target.blur(); // Remove focus from button
+        event.target.blur();
       }
     },
-
     deleteLetter() {
       if (this.store.isGuessMode) {
         this.store.deleteActiveBox();
       }
     },
-
     toggleGuessMode() {
       this.store.toggleGuessMode();
     },
-
     initiatePurchase(type, event) {
       if (this.store.pendingPurchase === type) {
-        this.store.pendingPurchase = null; // Deselect if already selected
+        this.store.pendingPurchase = null;
       } else {
-        this.store.pendingPurchase = type; // Set pending purchase
+        this.store.pendingPurchase = type;
       }
 
       if (event) {
-        event.target.blur(); // Remove focus from button
+        event.target.blur();
       }
     },
   },
@@ -189,7 +179,6 @@ export default {
 </script>
 
 <style scoped>
-/* Category Styling */
 .category {
   text-align: center;
   margin-bottom: 15px;
@@ -197,31 +186,35 @@ export default {
   font-weight: bold;
 }
 
-/* General Keyboard Layout */
 .keyboard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   margin: 0 auto;
 }
 
-/* Key Rows Layout */
 .key-row {
   display: flex;
-  justify-content: center;
+  overflow-x: auto;
+  gap: 5px;
 }
 
-/* Button Styling */
 button {
-  position: relative;
+  flex-shrink: 0;
   padding: 10px 15px;
+  min-width: 48px;
+  min-height: 48px;
   margin: 5px;
   border: none;
   border-radius: 5px;
   background-color: #f0f0f0;
   cursor: pointer;
   transition: background-color 0.3s;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 button span {
@@ -238,65 +231,16 @@ button .letter-cost {
   transform: translateX(-50%);
 }
 
-/* Button States */
-button.correct {
-  background-color: #28a745;
-  color: white;
-}
+@media (max-width: 768px) {
+  .key-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+  }
 
-button.incorrect {
-  background-color: #dc3545;
-  color: white;
-}
-
-button.selected {
-  background-color: #007bff;
-  color: white;
-}
-
-button.active {
-  background-color: orange;
-}
-
-button.ready {
-  background-color: #28a745;
-}
-
-/* Controls Section */
-.controls {
-  margin-top: 15px;
-}
-
-.controls button {
-  padding: 10px 20px;
-  margin: 5px;
-  border-radius: 5px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.controls button:hover {
-  background-color: #0056b3;
-}
-
-.controls button:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
-/* Top Controls Layout */
-.top-controls {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
-}
-
-/* Highlight selected buttons */
-button.selected {
-  background-color: #007bff;
-  color: #fff;
+  button {
+    padding: 8px;
+    font-size: 14px;
+  }
 }
 </style>
+
