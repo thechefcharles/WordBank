@@ -24,12 +24,13 @@
       </button>
     </div>
 
-    <!-- Rows of Keys -->
+    <!-- Scrollable Rows of Keys -->
     <div class="key-row" v-for="(row, rowIndex) in [row1, row2, row3]" :key="rowIndex">
       <button
         v-for="key in row"
         :key="key"
         @click="() => selectLetter(key)"
+        @touchstart="() => selectLetter(key)"
         :class="getKeyClass(key)"
         :disabled="store.guessedLetters.includes(key)"
       >
@@ -206,22 +207,34 @@ export default {
   margin: 0 auto;
 }
 
-/* Key Rows Layout */
+/* Scrollable Keyboard Rows */
 .key-row {
   display: flex;
-  justify-content: center;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  gap: 5px;
+}
+
+button {
+  flex-shrink: 0; /* Prevent buttons from shrinking */
 }
 
 /* Button Styling */
 button {
   position: relative;
   padding: 10px 15px;
+  min-width: 48px;
+  min-height: 48px;
   margin: 5px;
   border: none;
   border-radius: 5px;
   background-color: #f0f0f0;
   cursor: pointer;
   transition: background-color 0.3s;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 button span {
@@ -238,65 +251,16 @@ button .letter-cost {
   transform: translateX(-50%);
 }
 
-/* Button States */
-button.correct {
-  background-color: #28a745;
-  color: white;
-}
+/* Responsive Layout */
+@media (max-width: 768px) {
+  button {
+    padding: 8px;
+    font-size: 14px;
+  }
 
-button.incorrect {
-  background-color: #dc3545;
-  color: white;
-}
-
-button.selected {
-  background-color: #007bff;
-  color: white;
-}
-
-button.active {
-  background-color: orange;
-}
-
-button.ready {
-  background-color: #28a745;
-}
-
-/* Controls Section */
-.controls {
-  margin-top: 15px;
-}
-
-.controls button {
-  padding: 10px 20px;
-  margin: 5px;
-  border-radius: 5px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.controls button:hover {
-  background-color: #0056b3;
-}
-
-.controls button:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
-/* Top Controls Layout */
-.top-controls {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
-}
-
-/* Highlight selected buttons */
-button.selected {
-  background-color: #007bff;
-  color: #fff;
+  .key-row {
+    gap: 4px;
+  }
 }
 </style>
+
