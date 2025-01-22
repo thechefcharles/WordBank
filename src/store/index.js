@@ -116,8 +116,7 @@ export const useStore = defineStore('main', {
 
     guessLetter(letter) {
       if (this.guessedLetters.includes(letter)) {
-        // Prevent already guessed/revealed letters from being selected
-        return;
+        return; // Prevent already guessed letters from being purchased again
       }
 
       const cost = getLetterCost(letter);
@@ -148,11 +147,11 @@ export const useStore = defineStore('main', {
     },
 
     purchaseGuess() {
-      this.pendingPurchase = 'guess'; // Mark purchase as pending
+      this.pendingPurchase = 'guess';
     },
 
     purchaseHint() {
-      this.pendingPurchase = 'hint'; // Mark purchase as pending
+      this.pendingPurchase = 'hint';
     },
 
     confirmPendingPurchase() {
@@ -182,13 +181,13 @@ export const useStore = defineStore('main', {
               }
             });
 
-            this.guessedLetters.push(randomLetter); // Mark the letter as revealed
+            this.guessedLetters.push(randomLetter);
           }
         } else {
           alert('Insufficient bankroll to purchase a hint!');
         }
       }
-      this.pendingPurchase = null; // Reset pending purchase
+      this.pendingPurchase = null;
     },
 
     checkLossCondition() {
@@ -220,7 +219,8 @@ export const useStore = defineStore('main', {
       this.guesses = 2;
       this.winState = false;
       this.lossState = false;
-      this.pendingPurchase = null; // Reset pending purchase
+      this.pendingPurchase = null;
     },
   },
 });
+
