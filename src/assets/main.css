@@ -1,5 +1,6 @@
 @import './base.css';
 
+/* Main Container */
 #app {
   max-width: 1280px;
   margin: 0 auto;
@@ -7,6 +8,7 @@
   font-weight: normal;
 }
 
+/* Links and Green Accent */
 a,
 .green {
   text-decoration: none;
@@ -21,6 +23,7 @@ a,
   }
 }
 
+/* Desktop Layout */
 @media (min-width: 1024px) {
   body {
     display: flex;
@@ -33,3 +36,105 @@ a,
     padding: 0 2rem;
   }
 }
+
+/* Mobile and Tablet Optimizations */
+@media (max-width: 768px) {
+  #app {
+    max-width: 768px;
+    padding: 1rem;
+  }
+
+  /* Stack game info and controls vertically */
+  header h1 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .game-info {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  /* Adjust button sizes for touch */
+  button {
+    font-size: 0.9rem;
+    min-width: 48px;
+    min-height: 48px;
+    padding: 8px;
+  }
+
+  .controls button {
+    font-size: 1rem;
+    margin: 5px;
+  }
+
+  /* Adjust keyboard layout */
+  .keyboard {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .key-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+  }
+}
+
+/* Scrollable Keyboard for Smaller Screens */
+.key-row {
+  display: flex;
+  overflow-x: auto;
+  gap: 5px;
+}
+
+.key-row button {
+  flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+
+/* Font Scaling */
+body {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 14px; /* Scale text for smaller screens */
+  }
+
+  h1 {
+    font-size: 1.8rem; /* Adjust headers */
+  }
+
+  p {
+    font-size: 1rem; /* Adjust paragraph size */
+  }
+}
+
+/* Modal Styles for Smaller Screens */
+.modal {
+  position: fixed;
+  top: 10%;
+  left: 5%;
+  width: 90%;
+  max-width: 400px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  text-align: center;
+}
+
+.modal-content button {
+  width: 100%; /* Full-width buttons for mobile */
+  margin-top: 10px;
+}
+
+/* Button Active State for Touch Feedback */
+button:active {
+  background-color: #0056b3;
+  transform: scale(0.95);
+}
+
