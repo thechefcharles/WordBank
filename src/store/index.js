@@ -3,29 +3,50 @@ import { getLetterCost, checkLossCondition } from '../helpers/gameLogic';
 
 export const useStore = defineStore('main', {
   state: () => ({
-    currentPhrase: 'hello world', // The phrase the user must guess
-    category: 'Phrase', // Category for the puzzle
-    guessedLetters: [], // Tracks all guessed letters (both purchased and revealed)
-    correctPositions: [], // Tracks correctly guessed letters in their positions
-    bankroll: 1000, // Player's bankroll
-    guesses: 2, // Guesses remaining
-    currentInput: '', // Tracks the current phrase in Guess Mode
-    currentTypedLetter: '', // Tracks the currently selected letter
-    isGuessMode: false, // Tracks if Guess Mode is active
-    activeBoxIndex: null, // Tracks the active box in Guess Mode
-    winState: false, // Tracks if the player has won
-    lossState: false, // Tracks if the player has lost
-    currentCashStreak: 0, // Tracks the current win streak
-    highestCashStreak: 0, // Tracks the highest bankroll in a win streak
-    pendingPurchase: null, // Tracks if a guess or hint purchase is pending
+    currentPhrase: '', // Now fetched from API
+    category: '',
+    guessedLetters: [],
+    correctPositions: [],
+    bankroll: 1000,
+    guesses: 2,
+    currentInput: '',
+    currentTypedLetter: '',
+    isGuessMode: false,
+    activeBoxIndex: null,
+    winState: false,
+    lossState: false,
+    currentCashStreak: 0,
+    highestCashStreak: 0,
+    pendingPurchase: null,
   }),
 
   getters: {
-    letterCost: () => getLetterCost, // Fetch letter cost dynamically
-    formattedBankroll: (state) => `$${state.bankroll.toFixed(2)}`, // Ensures bankroll is formatted
+    letterCost: () => getLetterCost,
+    formattedBankroll: (state) => `$${state.bankroll.toFixed(2)}`,
   },
 
   actions: {
+    /** 
+     * Fetch a random phrase from the backend and set it as the current phrase.
+     */
+    async fetchRandomPhrase() {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/random-phrase');
+        const data = await response.json();
+        this.currentPhrase = data.phrase;
+        this.category = data.category;
+    
+        // Ensure correctPositions is an array with nulls for each non-space character
+        this.correctPositions = this.currentPhrase.split('').map((char) =>
+          char === ' ' ? ' ' : null
+        );
+    
+        this.guessedLetters = []; // Reset guessed letters
+      } catch (error) {
+        console.error('Error fetching phrase:', error);
+      }
+    },
+        
     toggleGuessMode() {
       if (this.guesses === 0) {
         alert('You need at least one guess remaining to enter Guess Mode!');
@@ -37,9 +58,7 @@ export const useStore = defineStore('main', {
         this.currentTypedLetter = '';
         this.currentInput = this.currentPhrase
           .split('')
-          .map((char, index) =>
-            char === ' ' || this.correctPositions[index] ? char : '_'
-          )
+          .map((char, index) => (char === ' ' || this.correctPositions[index] ? char : '_'))
           .join('');
         this.activeBoxIndex = this.currentInput.indexOf('_');
       } else {
@@ -57,10 +76,7 @@ export const useStore = defineStore('main', {
 
         const nextIndex = this.currentPhrase
           .split('')
-          .findIndex(
-            (char, idx) =>
-              idx > this.activeBoxIndex && char !== ' ' && inputArray[idx] === '_'
-          );
+          .findIndex((char, idx) => idx > this.activeBoxIndex && char !== ' ' && inputArray[idx] === '_');
 
         this.activeBoxIndex = nextIndex !== -1 ? nextIndex : this.activeBoxIndex;
       }
@@ -77,10 +93,7 @@ export const useStore = defineStore('main', {
 
       const prevIndex = this.currentPhrase
         .split('')
-        .findLastIndex(
-          (char, idx) =>
-            idx < this.activeBoxIndex && char !== ' ' && !this.correctPositions[idx]
-        );
+        .findLastIndex((char, idx) => idx < this.activeBoxIndex && char !== ' ' && !this.correctPositions[idx]);
 
       this.activeBoxIndex = prevIndex !== -1 ? prevIndex : this.activeBoxIndex;
     },
@@ -96,9 +109,7 @@ export const useStore = defineStore('main', {
       );
 
       this.currentInput = phraseArray
-        .map((char, index) =>
-          this.correctPositions[index] ? this.correctPositions[index] : '_'
-        )
+        .map((char, index) => (this.correctPositions[index] ? this.correctPositions[index] : '_'))
         .join('');
 
       if (this.currentInput.trim() === this.currentPhrase.trim()) {
@@ -115,10 +126,7 @@ export const useStore = defineStore('main', {
     },
 
     guessLetter(letter) {
-      if (this.guessedLetters.includes(letter)) {
-        // Prevent already guessed/revealed letters from being selected
-        return;
-      }
+      if (this.guessedLetters.includes(letter)) return;
 
       const cost = getLetterCost(letter);
       if (this.bankroll >= cost) {
@@ -132,26 +140,33 @@ export const useStore = defineStore('main', {
       const cost = getLetterCost(letter);
       this.guessedLetters.push(letter);
       this.bankroll -= cost;
-
+    
       const phraseArray = this.currentPhrase.split('');
+      let letterFound = false;
+    
       phraseArray.forEach((char, index) => {
-        if (char === letter) {
+        if (char.toLowerCase() === letter.toLowerCase()) { // Case insensitive match
           this.correctPositions[index] = char;
+          letterFound = true;
         }
       });
-
+    
+      if (!letterFound) {
+        console.error(`Letter "${letter}" not found in phrase.`);
+      }
+    
       // Check if all letters have been guessed
       const allRevealed = phraseArray.every(
         (char, index) => char === ' ' || this.correctPositions[index] === char
       );
-
+    
       if (allRevealed) {
         this.triggerWin();
       } else {
         this.checkLossCondition();
       }
     },
-
+    
     confirmPendingPurchase() {
       if (this.pendingPurchase === 'guess') {
         if (this.bankroll >= 150) {
@@ -170,30 +185,29 @@ export const useStore = defineStore('main', {
             .filter((char) => !this.guessedLetters.includes(char));
 
           if (unrevealedLetters.length > 0) {
-            const randomLetter =
-              unrevealedLetters[Math.floor(Math.random() * unrevealedLetters.length)];
-
+            const randomLetter = unrevealedLetters[Math.floor(Math.random() * unrevealedLetters.length)];
             phraseArray.forEach((char, index) => {
               if (char === randomLetter) {
                 this.correctPositions[index] = char;
               }
             });
 
-            this.guessedLetters.push(randomLetter); // Mark the letter as revealed
+            this.guessedLetters.push(randomLetter);
           }
         } else {
           alert('Insufficient bankroll to purchase a hint!');
         }
       }
-      this.pendingPurchase = null; // Reset pending purchase
+      this.pendingPurchase = null;
     },
 
     checkLossCondition() {
-      if (this.guesses === 0 && this.bankroll < 30) {
+      const cheapestLetterCost = Math.min(...Object.values(getLetterCost));
+      if (this.guesses === 0 && this.bankroll < cheapestLetterCost) {
         this.triggerLoss();
       }
     },
-    
+
     triggerWin() {
       this.winState = true;
       this.currentCashStreak++;
@@ -217,7 +231,8 @@ export const useStore = defineStore('main', {
       this.guesses = 2;
       this.winState = false;
       this.lossState = false;
-      this.pendingPurchase = null; // Reset pending purchase
+      this.pendingPurchase = null;
+      this.fetchRandomPhrase(); // Fetch a new phrase when resetting the game
     },
   },
 });
