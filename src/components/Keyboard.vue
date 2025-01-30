@@ -2,7 +2,6 @@
   <div class="keyboard">
     <!-- Category Display -->
     <div class="category">
-      <p>Category: <strong>{{ store.category }}</strong></p>
     </div>
 
     <!-- Guess and Hint Counters -->
