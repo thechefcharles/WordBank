@@ -1,4 +1,3 @@
-// src/store/index.js
 import { defineStore } from 'pinia';
 import { getLetterCost, checkLossCondition } from '../helpers/gameLogic';
 
@@ -23,6 +22,7 @@ export const useStore = defineStore('main', {
 
   getters: {
     letterCost: () => getLetterCost, // Fetch letter cost dynamically
+    formattedBankroll: (state) => `$${state.bankroll.toFixed(2)}`, // Ensures bankroll is formatted
   },
 
   actions: {
@@ -140,19 +140,16 @@ export const useStore = defineStore('main', {
         }
       });
 
-      if (this.correctPositions.join('') === this.currentPhrase) {
+      // Check if all letters have been guessed
+      const allRevealed = phraseArray.every(
+        (char, index) => char === ' ' || this.correctPositions[index] === char
+      );
+
+      if (allRevealed) {
         this.triggerWin();
       } else {
         this.checkLossCondition();
       }
-    },
-
-    purchaseGuess() {
-      this.pendingPurchase = 'guess'; // Mark purchase as pending
-    },
-
-    purchaseHint() {
-      this.pendingPurchase = 'hint'; // Mark purchase as pending
     },
 
     confirmPendingPurchase() {
@@ -192,11 +189,11 @@ export const useStore = defineStore('main', {
     },
 
     checkLossCondition() {
-      if (checkLossCondition(this.bankroll)) {
+      if (this.guesses === 0 && this.bankroll < 30) {
         this.triggerLoss();
       }
     },
-
+    
     triggerWin() {
       this.winState = true;
       this.currentCashStreak++;
