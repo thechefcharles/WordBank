@@ -30,7 +30,6 @@ const resetGame = () => {
       <h1>WordBank</h1>
       <div class="game-info">
         <p>Bankroll: <strong>${{ bankroll }}</strong></p>
-        <p>Guesses Remaining: <strong>{{ guesses }}</strong></p>
       </div>
     </header>
 
