@@ -30,23 +30,26 @@ export const useStore = defineStore('main', {
      * Fetch a random phrase from the backend and set it as the current phrase.
      */
     async fetchRandomPhrase() {
-      try {
-        const response = await fetch('http://127.0.0.1:8000/api/random-phrase');
-        const data = await response.json();
-        this.currentPhrase = data.phrase;
-        this.category = data.category;
-    
-        // Ensure correctPositions is an array with nulls for each non-space character
-        this.correctPositions = this.currentPhrase.split('').map((char) =>
-          char === ' ' ? ' ' : null
-        );
-    
-        this.guessedLetters = []; // Reset guessed letters
-      } catch (error) {
-        console.error('Error fetching phrase:', error);
-      }
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/random-phrase');
+            const data = await response.json();
+            this.currentPhrase = data.phrase;
+            this.category = data.category;
+
+            // Ensure correctPositions is initialized correctly
+            this.correctPositions = this.currentPhrase.split('').map((char) =>
+                char === ' ' ? ' ' : null
+            );
+
+            this.guessedLetters = []; // Reset guessed letters
+            
+            console.log("Fetched Phrase:", this.currentPhrase);
+            console.log("Correct Positions Array:", this.correctPositions);
+        } catch (error) {
+            console.error('Error fetching phrase:', error);
+        }
     },
-        
+
     toggleGuessMode() {
       if (this.guesses === 0) {
         alert('You need at least one guess remaining to enter Guess Mode!');
@@ -107,12 +110,13 @@ export const useStore = defineStore('main', {
       this.correctPositions = phraseArray.map((char, index) =>
         char.toLowerCase() === inputArray[index]?.toLowerCase() ? char : this.correctPositions[index] || null
       );
+
       phraseArray.forEach((char, index) => {
         if (char.toLowerCase() === inputArray[index]?.toLowerCase()) {
           this.correctPositions[index] = char;
         }
       });
-            
+
       this.currentInput = phraseArray
         .map((char, index) => (this.correctPositions[index] ? this.correctPositions[index] : '_'))
         .join('');
@@ -145,33 +149,32 @@ export const useStore = defineStore('main', {
       const cost = getLetterCost(letter);
       this.guessedLetters.push(letter);
       this.bankroll -= cost;
-    
+
       const phraseArray = this.currentPhrase.split('');
       let letterFound = false;
-    
+
       phraseArray.forEach((char, index) => {
         if (char.toLowerCase() === letter.toLowerCase()) { // Case insensitive match
           this.correctPositions[index] = char;
           letterFound = true;
         }
       });
-    
+
       if (!letterFound) {
         console.error(`Letter "${letter}" not found in phrase.`);
       }
-    
-      // Check if all letters have been guessed
+
       const allRevealed = phraseArray.every(
         (char, index) => char === ' ' || this.correctPositions[index] === char
       );
-    
+
       if (allRevealed) {
         this.triggerWin();
       } else {
         this.checkLossCondition();
       }
     },
-    
+
     confirmPendingPurchase() {
       if (this.pendingPurchase === 'guess') {
         if (this.bankroll >= 150) {
