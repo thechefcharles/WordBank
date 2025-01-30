@@ -1,13 +1,18 @@
 <script setup>
 import { useStore } from './store';
+import { computed } from 'vue';
 import Keyboard from './components/Keyboard.vue';
 import PhraseDisplay from './components/PhraseDisplay.vue';
 
 // Access the Pinia store
 const store = useStore();
 
-// Destructure necessary state from the store for simplicity
-const { bankroll, guesses, winState, lossState, resetGame } = store;
+// Use computed properties to retain reactivity
+const bankroll = computed(() => store.bankroll);
+const guesses = computed(() => store.guesses);
+const winState = computed(() => store.winState);
+const lossState = computed(() => store.lossState);
+const resetGame = store.resetGame; // Action doesn't require computed
 </script>
 
 <template>
