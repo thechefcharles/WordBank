@@ -1,0 +1,34 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+	precomposeunicode = true
+[branch "master"]
+	vscode-merge-base = origin/master
+[branch "charlietest1"]
+	vscode-merge-base = origin/master
+[branch "charlietest2"]
+	vscode-merge-base = origin/master
+[branch "charlietest3bankroll"]
+	vscode-merge-base = origin/master
+[branch "charlietest4winloss"]
+	vscode-merge-base = origin/master
+[branch "charlietestkeyboard1"]
+	vscode-merge-base = origin/Feature/CreateFrontEnd
+[branch "charlietestkeyboard2"]
+	vscode-merge-base = origin/charlietest4winloss
+[branch "charlieoptionsapi"]
+	vscode-merge-base = origin/master
+[branch "charlieoptionsapideletebutton"]
+	vscode-merge-base = origin/master
+[branch "charliedeletebuttonremovesubmitguess"]
+	vscode-merge-base = origin/master
+[branch "charliefinallosscondition"]
+	vscode-merge-base = origin/master
+[branch "charlieallfeaturesneworganization"]
+	vscode-merge-base = origin/master
+[remote "origin"]
+	url = https://github.com/thechefcharles/WordBank.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
