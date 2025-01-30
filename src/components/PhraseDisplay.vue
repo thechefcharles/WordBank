@@ -2,12 +2,13 @@
   <div class="phrase-display-wrapper">
     <!-- Category Display -->
     <div class="category">
-      <p>Category: <strong>{{ store.category }}</strong></p>
+      <p>Category: <strong>{{ category }}</strong></p>
     </div>
 
     <!-- Phrase Display -->
     <div class="phrase-display">
       <template v-for="(char, index) in displayPhrase" :key="index">
+        <!-- Letter Box -->
         <div
           v-if="char !== ' '"
           :class="[
@@ -17,6 +18,7 @@
         >
           <span v-if="char !== '_'">{{ char }}</span>
         </div>
+        <!-- Space Between Words -->
         <div v-else class="phrase-space"></div>
       </template>
     </div>
@@ -25,25 +27,31 @@
 
 <script>
 import { useStore } from '../store';
+import { computed, watch } from 'vue';
 
 export default {
   name: 'PhraseDisplay',
-  computed: {
-    store() {
-      return useStore();
-    },
-    displayPhrase() {
-      const phraseArray = this.store.currentPhrase.split('');
+  setup() {
+    const store = useStore();
+
+    // Computed properties for reactivity
+    const category = computed(() => store.category);
+    const displayPhrase = computed(() => {
+      if (!store.currentPhrase) return [];
+      const phraseArray = store.currentPhrase.split('');
+
       return phraseArray.map((char, index) => {
-        if (char === ' ') {
-          return ' ';
-        }
-        return (
-          this.store.correctPositions[index] ||
-          (this.store.isGuessMode ? this.store.currentInput[index] || '_' : '_')
-        );
+        if (char === ' ') return ' ';
+        return store.correctPositions[index] || (store.isGuessMode ? store.currentInput[index] || '_' : '_');
       });
-    },
+    });
+
+    // Watch for phrase updates and reset correct positions
+    watch(() => store.currentPhrase, () => {
+      store.correctPositions = Array(store.currentPhrase.length).fill(null);
+    });
+
+    return { store, category, displayPhrase };
   },
 };
 </script>
@@ -91,12 +99,12 @@ export default {
 
 .phrase-box.active {
   border-color: orange;
-  box-shadow: 0 0 10px orange; /* Highlight active box */
+  box-shadow: 0 0 10px orange;
 }
 
 /* Space Styling */
 .phrase-space {
-  width: 20px; /* Space between words */
+  width: 20px;
 }
 
 /* Responsive Adjustments */

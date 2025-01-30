@@ -1,25 +1,33 @@
 <script setup>
 import { useStore } from './store';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import Keyboard from './components/Keyboard.vue';
 import PhraseDisplay from './components/PhraseDisplay.vue';
 
 // Access the Pinia store
 const store = useStore();
 
+// Fetch a random phrase when the app starts
+onMounted(() => {
+  store.fetchRandomPhrase();
+});
+
 // Use computed properties to retain reactivity
 const bankroll = computed(() => store.bankroll);
 const guesses = computed(() => store.guesses);
 const winState = computed(() => store.winState);
 const lossState = computed(() => store.lossState);
-const resetGame = store.resetGame; // Action doesn't require computed
+const resetGame = () => {
+  store.resetGame();
+  store.fetchRandomPhrase(); // Fetch a new phrase when resetting
+};
 </script>
 
 <template>
   <div id="app">
     <!-- Header Section -->
     <header>
-      <h1>Word Game</h1>
+      <h1>WordBank</h1>
       <div class="game-info">
         <p>Bankroll: <strong>${{ bankroll }}</strong></p>
         <p>Guesses Remaining: <strong>{{ guesses }}</strong></p>
@@ -185,6 +193,3 @@ button:active {
   background-color: #0056b3;
 }
 </style>
-/* Modal Styles */
-/* Modal Styles */
-
