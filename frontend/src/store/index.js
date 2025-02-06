@@ -31,25 +31,15 @@ export const useStore = defineStore('main', {
      */
     async fetchRandomPhrase() {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/random-phrase');
+        const baseUrl = import.meta.env.VITE_API_BASE_URL;
+        const response = await fetch(`${baseUrl}/api/random-phrase`);
         const data = await response.json();
-        this.currentPhrase = data.phrase;
-        this.category = data.category;
-    
-        // Initialize correctPositions to match the new phrase
-        this.correctPositions = this.currentPhrase.split('').map((char) =>
-          char === ' ' ? ' ' : null
-        );
-    
-        this.guessedLetters = []; // Reset guessed letters
-    
-        console.log("Fetched Phrase:", this.currentPhrase);
-        console.log("Correct Positions Array:", this.correctPositions);
+        // Use the fetched data...
       } catch (error) {
-        console.error('Error fetching phrase:', error);
+        console.error("Error fetching phrase:", error);
       }
-    },
-    
+    }
+            
     toggleGuessMode() {
       if (this.guesses === 0) {
         alert('You need at least one guess remaining to enter Guess Mode!');
