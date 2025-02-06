@@ -30,26 +30,26 @@ export const useStore = defineStore('main', {
      * Fetch a random phrase from the backend and set it as the current phrase.
      */
     async fetchRandomPhrase() {
-        try {
-            const response = await fetch('http://127.0.0.1:8000/api/random-phrase');
-            const data = await response.json();
-            this.currentPhrase = data.phrase;
-            this.category = data.category;
-
-            // Ensure correctPositions is initialized correctly
-            this.correctPositions = this.currentPhrase.split('').map((char) =>
-                char === ' ' ? ' ' : null
-            );
-
-            this.guessedLetters = []; // Reset guessed letters
-            
-            console.log("Fetched Phrase:", this.currentPhrase);
-            console.log("Correct Positions Array:", this.correctPositions);
-        } catch (error) {
-            console.error('Error fetching phrase:', error);
-        }
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/random-phrase');
+        const data = await response.json();
+        this.currentPhrase = data.phrase;
+        this.category = data.category;
+    
+        // Initialize correctPositions to match the new phrase
+        this.correctPositions = this.currentPhrase.split('').map((char) =>
+          char === ' ' ? ' ' : null
+        );
+    
+        this.guessedLetters = []; // Reset guessed letters
+    
+        console.log("Fetched Phrase:", this.currentPhrase);
+        console.log("Correct Positions Array:", this.correctPositions);
+      } catch (error) {
+        console.error('Error fetching phrase:', error);
+      }
     },
-
+    
     toggleGuessMode() {
       if (this.guesses === 0) {
         alert('You need at least one guess remaining to enter Guess Mode!');
