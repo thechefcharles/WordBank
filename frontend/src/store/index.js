@@ -38,7 +38,7 @@ export const useStore = defineStore('main', {
       } catch (error) {
         console.error("Error fetching phrase:", error);
       }
-    }
+    },
             
     toggleGuessMode() {
       if (this.guesses === 0) {
